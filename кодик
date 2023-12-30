@@ -1,0 +1,88 @@
+#include <iostream>
+
+const int SIZE = 10;
+
+// Функция для печати текущей "вселенной"
+void printUniverse(bool universe[SIZE][SIZE]) {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            std::cout << (universe[i][j] ? "*" : " ") << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+// Функция для подсчета количества живых соседей клетки
+int countNeighbors(bool universe[SIZE][SIZE], int x, int y) {
+    int count = 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (i == 0 && j == 0) continue;
+            int newX = (x + i + SIZE) % SIZE;
+            int newY = (y + j + SIZE) % SIZE;
+            if (universe[newX][newY]) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+// Функция для обновления состояния "вселенной" до следующего поколения
+void nextGeneration(bool universe[SIZE][SIZE]) {
+    bool newUniverse[SIZE][SIZE] = {false};
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            int neighbors = countNeighbors(universe, i, j);
+            if (universe[i][j]) {
+                if (neighbors < 2 || neighbors > 3) {
+                    newUniverse[i][j] = false;
+                } else {
+                    newUniverse[i][j] = true;
+                }
+            } else {
+                if (neighbors == 3) {
+                    newUniverse[i][j] = true;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            universe[i][j] = newUniverse[i][j];
+        }
+    }
+}
+
+int main() {
+    // Создаем массив для "вселенной"
+    bool universe[SIZE][SIZE] = {false};
+
+    // Начальное распределение живых клеток
+    universe[4][5] = true;
+    universe[5][5] = true;
+    universe[6][5] = true;
+
+    // Основной игровой цикл
+    for (int generation = 0; generation < 100; generation++) {
+        std::cout << "Generation: " << generation << std::endl;
+        printUniverse(universe);
+        nextGeneration(universe);
+        // Условие для прекращения игры
+        bool isEmpty = true;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (universe[i][j]) {
+                    isEmpty = false;
+                    break;
+                }
+            }
+        }
+        if (isEmpty) {
+            std::cout << "All cells are dead. Game over." << std::endl;
+            break;
+        }
+    }
+
+    return 0;
+}
